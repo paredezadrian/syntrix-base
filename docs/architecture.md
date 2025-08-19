@@ -8,12 +8,12 @@
 Given token embeddings X ∈ R^{B×T×D}:
 
 1. Pre-norm: X̃ = LN(X)
-2. Attention: Q = X̃ W_Q, K = X̃ W_K, V = X̃ W_V
-3. RoPE: (Q, K) ← rope(Q, K)
+2. Attention: Q = X̃ W_Q, K = X̃ W_K, V = X̃ W_V, where W_Q,W_K,W_V ∈ ℝ^{D×D}
+3. RoPE: (Q, K) ← rope(Q, K) using rotary angles θ_i = base^{−2i/D}
 4. Causal scores: A = softmax((Q Kᵀ)/√d_h + M_causal)
-5. Context: C = A V
-6. Residual: X ← X + C W_O
-7. MLP: X ← X + W₂ (silu(W_u X) ⊙ W_g X)
+5. Context: C = A V, then O = C W_O
+6. Residual: X ← X + O
+7. MLP (SwiGLU): X ← X + W₂ [ (W_u X) ⊙ σ(W_g X) ]
 
 ## RNN Mini (Gated RNN)
 
@@ -22,7 +22,7 @@ Given token embeddings X ∈ R^{B×T×D}:
 ## SSM Mini (Selective SSM)
 
 - Pre-norm + depthwise conv shortcut
-- Diagonal state update (toy): h_t = α ⊙ h_{t−1} + β ⊙ x_t
+- Diagonal state update (toy): h_t = α ⊙ h_{t−1} + β ⊙ x_t, y_t = h_t
 - Residual + SwiGLU MLP
 
 ## Determinism

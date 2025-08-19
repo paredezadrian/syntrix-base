@@ -20,6 +20,7 @@ from .optim.ema import EMA
 from .utils.seed import set_seed, set_threads, get_dtype, try_compile
 from .data.text import CharTokenizer, load_text_file
 from .data.bpe import BPETokenizer
+from .data.mmap import mmap_random_block_batch
 import platform
 
 
@@ -54,6 +55,7 @@ class TrainArgs:
     out_dir: str = "runs/latest"
     tokenizer: str = "char"  # char|bpe
     bpe_vocab_size: int = 256
+    use_mmap: bool = False
 
 
 def tokens_from_text(text: str, tokenizer: CharTokenizer) -> torch.Tensor:
@@ -177,7 +179,10 @@ class Trainer:
             self.optimizer.zero_grad(set_to_none=True)
             loss_accum = 0.0
             for i in range(args.grad_accum):
-                xb, yb = sample_batch(self.train_tokens, args.microbatch, args.block_size)
+                if args.use_mmap:
+                    xb, yb = mmap_random_block_batch(args.data_file, batch_size=args.microbatch, block_size=args.block_size)
+                else:
+                    xb, yb = sample_batch(self.train_tokens, args.microbatch, args.block_size)
                 logits = model(xb)
                 loss = F.cross_entropy(logits.view(-1, logits.size(-1)), yb.view(-1))
                 (loss / args.grad_accum).backward()

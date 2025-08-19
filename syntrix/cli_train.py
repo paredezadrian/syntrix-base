@@ -22,6 +22,7 @@ def main(argv=None):
     p.add_argument("--tokenizer", type=str, default="char", choices=["char", "bpe"])
     p.add_argument("--bpe_vocab_size", type=int, default=256)
     p.add_argument("--download.text8_mini", dest="dl_text8", action="store_true")
+    p.add_argument("--data.use_mmap", dest="use_mmap", action="store_true")
 
     # Model
     p.add_argument("--model", type=str, default="gpt_mini")
@@ -99,6 +100,7 @@ def main(argv=None):
         dtype=args.dtype,
         tokenizer=args.tokenizer,
         bpe_vocab_size=args.bpe_vocab_size,
+        use_mmap=args.use_mmap,
         # compile flag is recognized but not used directly in TrainArgs; Trainer can read from env/args if extended
         ema=args.ema,
         out_dir=args.out_dir,

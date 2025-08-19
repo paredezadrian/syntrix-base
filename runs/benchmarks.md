@@ -45,5 +45,7 @@ syntrix.train \
 
 Observed (example run on i5-11320H, 4 threads):
 
-- Step 100: val bpc ≈ 2.9; tok/s ≈ 30–50
-- Step 300: val bpc ≈ 2.4; final checkpoint saved
+| Step | Val BPC | Tokens/sec |
+|-----:|--------:|-----------:|
+|  100 |    ~2.9 |     30–50  |
+|  300 |    ~2.4 |     30–50  |
