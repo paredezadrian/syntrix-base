@@ -11,6 +11,7 @@ def main(argv=None):
     p.add_argument("--threads", type=int, default=4)
     p.add_argument("--seed", type=int, default=1337)
     p.add_argument("--dtype", type=str, default="float32", choices=["float32", "float64"])
+    p.add_argument("--compile", action="store_true")
 
     # Data & IO
     p.add_argument("--data.file", dest="data_file", type=str, required=True)
@@ -84,6 +85,7 @@ def main(argv=None):
         seed=args.seed,
         threads=args.threads,
         dtype=args.dtype,
+        # compile flag is recognized but not used directly in TrainArgs; Trainer can read from env/args if extended
         ema=args.ema,
         out_dir=args.out_dir,
     )
