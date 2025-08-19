@@ -9,7 +9,7 @@ from .models.gpt_mini import GPTMini
 def main(argv=None):
     p = argparse.ArgumentParser("syntrix.sample")
     p.add_argument("--ckpt", type=str, default="runs/latest/ckpt.pt")
-    p.add_argument("--data.file", dest="data_file", type=str, required=True)
+    p.add_argument("--data.file", dest="data_file", type=str, required=False)
     p.add_argument("--max_new_tokens", type=int, default=200)
     p.add_argument("--temp", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=1337)
