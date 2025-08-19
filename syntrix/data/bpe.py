@@ -20,8 +20,16 @@ class BPETokenizer:
     Trains merges greedily to reach target vocab size.
     """
 
-    def __init__(self, text: str, vocab_size: int = 256):
+    def __init__(self, text: str | None = None, vocab_size: int = 256, vocab_tokens: List[str] | None = None):
+        # If explicit vocab is provided, initialize directly
+        if vocab_tokens is not None:
+            self.stoi = {tok: i for i, tok in enumerate(vocab_tokens)}
+            self.itos = {i: tok for tok, i in self.stoi.items()}
+            self.vocab_size = len(self.stoi)
+            self.merges = {}
+            return
         # start from character-level symbols
+        assert text is not None, "text must be provided when vocab_tokens is None"
         tokens = list(text)
         vocab: Dict[Tuple[str, ...], int] = {}
         # initialize with all single characters

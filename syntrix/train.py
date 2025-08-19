@@ -19,6 +19,7 @@ from .optim.schedule import CosineWithWarmup
 from .optim.ema import EMA
 from .utils.seed import set_seed, set_threads, get_dtype
 from .data.text import CharTokenizer, load_text_file
+from .data.bpe import BPETokenizer
 import platform
 
 
@@ -51,6 +52,8 @@ class TrainArgs:
     dtype: str = "float32"
     ema: bool = False
     out_dir: str = "runs/latest"
+    tokenizer: str = "char"  # char|bpe
+    bpe_vocab_size: int = 256
 
 
 def tokens_from_text(text: str, tokenizer: CharTokenizer) -> torch.Tensor:
@@ -97,7 +100,10 @@ class Trainer:
         torch.set_default_dtype(get_dtype(args.dtype))
 
         raw_text = load_text_file(args.data_file)
-        self.tokenizer = CharTokenizer(raw_text)
+        if args.tokenizer == "bpe":
+            self.tokenizer = BPETokenizer(raw_text, vocab_size=args.bpe_vocab_size)
+        else:
+            self.tokenizer = CharTokenizer(raw_text)
         tokens = tokens_from_text(raw_text, self.tokenizer)
         self.train_tokens, self.val_tokens = split_train_val(tokens, val_ratio=0.05, seed=args.seed)
 
@@ -210,7 +216,8 @@ class Trainer:
                             "n_head": self.args.n_head,
                             "block_size": self.args.block_size,
                             "mlp_ratio": self.args.mlp_ratio,
-                            "chars": self.tokenizer.chars,
+                            "chars": getattr(self.tokenizer, "chars", None),
+                            "tokenizer": self.args.tokenizer,
                         },
                     },
                     ckpt_path,

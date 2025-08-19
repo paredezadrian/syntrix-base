@@ -17,6 +17,8 @@ def main(argv=None):
     p.add_argument("--data.file", dest="data_file", type=str, required=True)
     p.add_argument("--out_dir", type=str, default="runs/latest")
     p.add_argument("--config", type=str, default=None)
+    p.add_argument("--tokenizer", type=str, default="char", choices=["char", "bpe"])
+    p.add_argument("--bpe_vocab_size", type=int, default=256)
 
     # Model
     p.add_argument("--model", type=str, default="gpt_mini")
@@ -85,6 +87,8 @@ def main(argv=None):
         seed=args.seed,
         threads=args.threads,
         dtype=args.dtype,
+        tokenizer=args.tokenizer,
+        bpe_vocab_size=args.bpe_vocab_size,
         # compile flag is recognized but not used directly in TrainArgs; Trainer can read from env/args if extended
         ema=args.ema,
         out_dir=args.out_dir,
