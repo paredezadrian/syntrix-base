@@ -1,4 +1,5 @@
 import torch
+from syntrix.utils.seed import tolerance_for_dtype
 
 from syntrix.nn.layers import RotaryEmbedding
 from syntrix.nn.attention import CausalSelfAttention
@@ -32,6 +33,7 @@ def test_causal_masking():
     y, weights = attn(x, return_attn_weights=True)
     # weights: (B, H, T, T); ensure strictly upper triangle is zero after softmax
     upper = torch.triu(weights[0, 0], diagonal=1)
-    assert torch.allclose(upper, torch.zeros_like(upper))
+    rtol, atol = tolerance_for_dtype(upper.dtype)
+    assert torch.allclose(upper, torch.zeros_like(upper), rtol=rtol, atol=atol)
 
 

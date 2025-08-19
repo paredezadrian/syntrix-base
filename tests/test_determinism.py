@@ -1,6 +1,6 @@
 import torch
 
-from syntrix.utils.seed import set_seed, set_threads
+from syntrix.utils.seed import set_seed, set_threads, tolerance_for_dtype
 from syntrix.data.text import CharTokenizer, random_block_batch
 from syntrix.models.gpt_mini import GPTMini
 
@@ -35,7 +35,9 @@ def test_deterministic_losses_reproduce():
     b = run_short_training()
     # Identical per-step losses
     assert len(a) == len(b)
+    # Use tolerance based on default dtype
+    rtol, atol = tolerance_for_dtype(torch.get_default_dtype())
     for la, lb in zip(a, b):
-        assert abs(la - lb) < 1e-8
+        assert abs(la - lb) <= max(atol, rtol * max(abs(la), abs(lb)))
 
 

@@ -1,6 +1,8 @@
 import math
 import pytest
 import torch
+from syntrix.utils.seed import tolerance_for_dtype
+import torch
 
 from syntrix.optim.schedule import CosineWithWarmup
 from syntrix.optim.ema import EMA
@@ -17,7 +19,8 @@ def test_cosine_with_warmup_curve():
     assert lrs[warmup - 1] == pytest.approx(base_lr)
     # After warmup, cosine decays and stays non-negative
     assert all(lr >= -1e-8 for lr in lrs)
-    assert lrs[-1] == pytest.approx(0.0, abs=1e-6)
+    _, atol = tolerance_for_dtype(torch.get_default_dtype())
+    assert lrs[-1] == pytest.approx(0.0, abs=max(atol, 1e-8))
 
 
 def test_ema_tracks_parameters():
