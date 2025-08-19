@@ -1,0 +1,43 @@
+---
+description: Training pipeline patterns for Apply Intelligently.
+---
+
+# Training Pipeline Patterns
+
+## Trainer Class Structure
+- Inherit from a base `Trainer` class or implement standard interface
+- Separate training logic from data loading and evaluation
+- Use dependency injection for model, optimizer, and scheduler
+- Implement `train_step()`, `eval_step()`, and `fit()` methods
+
+## Training Loop Components
+- **Microbatching**: Process small batches to reduce memory usage
+- **Gradient Accumulation**: Accumulate gradients over multiple forward passes
+- **Learning Rate Scheduling**: Use cosine schedule with warmup
+- **Gradient Clipping**: Apply gradient norm clipping (default: 1.0)
+- **EMA**: Optional exponential moving average for model weights
+
+## Optimization Strategy
+- **AdamW**: Use weight decay and beta parameters (0.9, 0.95)
+- **Cosine Schedule**: Implement warmup followed by cosine decay
+- **Mixed Precision**: Support both fp32 and fp64 with appropriate tolerances
+- **Gradient Accumulation**: Simulate larger batch sizes without memory increase
+
+## Evaluation & Monitoring
+- **Metrics**: Track loss, BPC (bits per character), and tokens per second
+- **Validation**: Evaluate on held-out validation set
+- **Checkpointing**: Save model state at regular intervals
+- **Logging**: Use structured logging (JSONL) for experiment tracking
+
+## CLI Interface
+- **Configuration**: Load base YAML config with command-line overrides
+- **Data Paths**: Accept text file paths for training data
+- **Hyperparameters**: Allow override of all training parameters
+- **Output Directory**: Specify where to save checkpoints and logs
+- **Reproducibility**: Set random seeds and thread counts
+
+## Performance Considerations
+- **Thread Pinning**: Use `torch.set_num_threads()` for CPU optimization
+- **Memory Management**: Implement proper cleanup and garbage collection
+- **Profiling**: Track wall-clock time and throughput metrics
+- **Early Stopping**: Implement patience-based early stopping if needed

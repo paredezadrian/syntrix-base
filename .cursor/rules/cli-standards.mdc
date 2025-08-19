@@ -1,0 +1,48 @@
+---
+description: CLI Standards for syntrix
+---
+
+# CLI Standards
+
+## Entry Point Structure
+- Use `argparse` for command-line argument parsing
+- Implement main functions that can be called programmatically
+- Support both direct execution and module execution (`python -m syntrix`)
+- Use descriptive help text for all arguments
+
+## Command Organization
+- **syntrix.train**: Main training command with comprehensive options
+- **syntrix.sample**: Text generation from trained models
+- **syntrix.eval**: Model evaluation and benchmarking
+- **syntrix.config**: Configuration validation and generation
+
+## Argument Categories
+- **Model**: Model architecture and hyperparameters
+- **Data**: Input data paths and tokenization options
+- **Training**: Training loop parameters and optimization
+- **Hardware**: Thread count, dtype, and device options
+- **Output**: Checkpoint and logging directories
+
+## Configuration Override
+- Support YAML configuration file as base
+- Allow command-line overrides for all configuration parameters
+- Use dot notation for nested configuration (e.g., `--model.n_layer 6`)
+- Validate configuration values before training begins
+
+## Error Handling
+- **File Validation**: Check if input files exist before processing
+- **Parameter Validation**: Validate numeric ranges and parameter compatibility
+- **Graceful Degradation**: Handle missing optional dependencies
+- **Clear Error Messages**: Provide actionable error messages
+
+## Help and Documentation
+- **Comprehensive Help**: Include examples and parameter descriptions
+- **Default Values**: Show default values in help text
+- **Configuration Examples**: Provide sample configuration files
+- **Troubleshooting**: Include common issues and solutions
+
+## Logging and Output
+- **Progress Bars**: Show training progress with tqdm
+- **Structured Logging**: Use JSONL format for experiment tracking
+- **Verbose Mode**: Support different verbosity levels
+- **Output Formatting**: Consistent formatting for all output

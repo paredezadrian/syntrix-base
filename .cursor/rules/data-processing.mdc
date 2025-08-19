@@ -1,0 +1,41 @@
+---
+description: Data processing patterns for Apply Intelligently.
+---
+
+# Data Processing Patterns
+
+## Dataset Implementation
+- Inherit from `torch.utils.data.Dataset` for custom datasets
+- Implement `__len__()` and `__getitem__()` methods
+- Use memory-mapped files for large text datasets
+- Support both character-level and BPE tokenization
+
+## Tokenization
+- **Character Tokenizer**: Map characters to integer indices
+- **BPE Tokenizer**: Implement byte-pair encoding for subword units
+- **Vocabulary**: Maintain mapping between tokens and indices
+- **Special Tokens**: Handle start/end of sequence tokens
+
+## Data Loading
+- **Block Sampling**: Sample fixed-length sequences from text
+- **Memory Mapping**: Use `mmap` for efficient file access
+- **Sharding**: Split large files into manageable chunks
+- **Caching**: Cache frequently accessed data in memory
+
+## Batching & Collation
+- **Microbatching**: Support very small batch sizes (1-4)
+- **Gradient Accumulation**: Prepare data for gradient accumulation
+- **Padding**: Handle variable-length sequences efficiently
+- **Block Size**: Use configurable block size (default: 128)
+
+## Data Validation
+- **File Existence**: Check if data files exist before processing
+- **Format Validation**: Verify text file encoding and format
+- **Size Checks**: Ensure dataset is large enough for training
+- **Split Validation**: Verify train/validation split ratios
+
+## Performance Optimization
+- **Iterator Pattern**: Use efficient iterators for data streaming
+- **Memory Efficiency**: Minimize memory footprint during loading
+- **Parallel Processing**: Use multiple workers for data loading
+- **Prefetching**: Implement data prefetching for training speed
