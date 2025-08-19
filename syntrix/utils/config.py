@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 import yaml
 
@@ -12,6 +12,7 @@ class TrainConfig:
     grad_accum: int = 64
     grad_clip: float = 1.0
     dtype: str = "float32"
+    train_steps: int = 300
     eval_every: int = 100
     save_every: int = 200
 
@@ -44,10 +45,10 @@ class ModelConfig:
 
 @dataclass
 class Config:
-    model: ModelConfig = ModelConfig()
-    optim: OptimConfig = OptimConfig()
-    schedule: ScheduleConfig = ScheduleConfig()
-    train: TrainConfig = TrainConfig()
+    model: ModelConfig = field(default_factory=ModelConfig)
+    optim: OptimConfig = field(default_factory=OptimConfig)
+    schedule: ScheduleConfig = field(default_factory=ScheduleConfig)
+    train: TrainConfig = field(default_factory=TrainConfig)
 
 
 def load_yaml_config(path: str) -> Config:
