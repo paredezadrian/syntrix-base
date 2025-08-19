@@ -1,5 +1,11 @@
 # Syntrix‑Base — A Low‑Resource (CPU‑First) Machine Learning Framework
 
+[![CI](https://github.com/paredezadrian/syntrix-base/actions/workflows/ci.yaml/badge.svg)](https://github.com/paredezadrian/syntrix-base/actions/workflows/ci.yaml)
+[![CodeQL](https://github.com/paredezadrian/syntrix-base/actions/workflows/codeql.yml/badge.svg)](https://github.com/paredezadrian/syntrix-base/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/syntrix.svg)](https://pypi.org/project/syntrix/)
+[![Python](https://img.shields.io/pypi/pyversions/syntrix.svg)](https://pypi.org/project/syntrix/)
+
 Train and run modern small models fast on everyday CPUs — simple, transparent, and reproducible.
 
 ## Highlights
@@ -24,6 +30,11 @@ cd syntrix-base
 python3 -m venv venv && source venv/bin/activate
 pip install --upgrade pip
 pip install -e .
+```
+
+Install from PyPI (after publish):
+```bash
+pip install syntrix
 ```
 
 ### 2) Get sample data (TinyShakespeare)
@@ -113,3 +124,36 @@ We welcome contributions of all kinds: bug fixes, features, docs, and benchmarks
 ## License
 
 MIT — see `LICENSE`.
+
+## Packaging & Publishing
+
+### Versioning Policy
+
+We follow Semantic Versioning (SemVer): `MAJOR.MINOR.PATCH`.
+- Increase MAJOR for incompatible API changes.
+- Increase MINOR for added functionality in a backward-compatible manner.
+- Increase PATCH for backward-compatible bug fixes.
+
+### Release Checklist
+
+1. Ensure all tests pass locally and in CI.
+2. Update `CHANGELOG.md` with a new section for the release.
+3. Bump the version in `pyproject.toml`.
+4. Commit changes and tag the release:
+   - `git commit -m "chore(release): bump version to X.Y.Z"`
+   - `git tag vX.Y.Z && git push origin main --tags`
+5. Build and upload to PyPI:
+   - `pip install build twine`
+   - `python -m build`
+   - `twine upload dist/*`
+6. Create a GitHub Release referencing the tag and the corresponding changelog notes.
+7. Verify README badges (CI, CodeQL, PyPI) render correctly.
+
+### Installing from PyPI (post‑publish)
+
+```bash
+pip install syntrix
+# verify CLI entry points
+syntrix.train --help
+syntrix.sample --help
+```
