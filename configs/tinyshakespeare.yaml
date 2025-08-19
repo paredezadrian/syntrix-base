@@ -1,0 +1,13 @@
+data:
+  file: data/tinyshakespeare.txt
+
+train:
+  train_steps: 300
+  eval_every: 100
+  save_every: 150
+  microbatch: 1
+  grad_accum: 64
+  dtype: float32
+  threads: 4
+
+
