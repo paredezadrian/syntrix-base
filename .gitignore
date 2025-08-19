@@ -65,6 +65,9 @@ coverage.xml
 .env.local
 .env.*.local
 
-# Local data and runs
-data/
-runs/
+# Local data and runs (top-level)
+/data/
+/runs/
+
+# Project files
+syntrix_base_cpu_first_ml_framework_blueprint_readme.md

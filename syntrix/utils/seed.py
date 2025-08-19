@@ -31,3 +31,19 @@ def get_dtype(dtype_str: str) -> torch.dtype:
     return torch.float32
 
 
+def try_compile(model: torch.nn.Module, enabled: bool) -> torch.nn.Module:
+    """Optionally compile the model with torch.compile if available.
+
+    Falls back to identity if not available. Returns the (possibly) compiled model.
+    """
+    if not enabled:
+        return model
+    compile_fn = getattr(torch, "compile", None)
+    if compile_fn is None:
+        return model
+    try:
+        return compile_fn(model)
+    except Exception:
+        return model
+
+
