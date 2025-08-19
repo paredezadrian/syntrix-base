@@ -62,6 +62,8 @@ class TrainArgs:
     compile_validate: bool = False
     compile_auto: bool = False
     compile_min_improvement: float = 1.05
+    # Logging / UI
+    verbosity: int = 1
 
 
 def tokens_from_text(text: str, tokenizer: CharTokenizer) -> torch.Tensor:
@@ -210,7 +212,10 @@ class Trainer:
                 bpc = evaluate_bpc(model, self.val_tokens, args.block_size, iters=10, batch_size=min(16, args.batch_size))
                 dt = max(1e-6, (time.time() - t0))
                 tok_s = (args.grad_accum * args.microbatch * args.block_size) / dt
-                print(f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f}")
+                if args.verbosity >= 2:
+                    print(f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f} | dt {dt:.3f}s")
+                elif args.verbosity >= 1:
+                    print(f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f}")
                 self._log({
                     "step": step,
                     "loss": loss_accum/args.grad_accum,

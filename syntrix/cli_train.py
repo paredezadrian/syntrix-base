@@ -8,50 +8,55 @@ from .train import Trainer, TrainArgs
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser("syntrix.train")
+    p = argparse.ArgumentParser(
+        "syntrix.train",
+        description="Train small models on CPU with deterministic behavior and reproducible logs.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     # System
-    p.add_argument("--threads", type=int, default=4)
-    p.add_argument("--seed", type=int, default=1337)
-    p.add_argument("--dtype", type=str, default="float32", choices=["float32", "float64"])
+    p.add_argument("--threads", type=int, default=4, help="Number of PyTorch/BLAS threads to use")
+    p.add_argument("--seed", type=int, default=1337, help="Random seed for determinism")
+    p.add_argument("--dtype", type=str, default="float32", choices=["float32", "float64"], help="Default floating point precision")
+    p.add_argument("-v", "--verbose", action="count", default=0, help="Increase console verbosity (-v, -vv)")
     p.add_argument("--compile", action="store_true", help="Enable torch.compile if available")
     p.add_argument("--compile.validate", dest="compile_validate", action="store_true", help="Benchmark forward throughput to validate compile speedup")
     p.add_argument("--compile.auto", dest="compile_auto", action="store_true", help="Auto-enable compile only if validation shows improvement")
     p.add_argument("--compile.min_improvement", dest="compile_min_improvement", type=float, default=1.05, help="Minimum throughput improvement ratio to accept compile in auto mode")
 
     # Data & IO
-    p.add_argument("--data.file", dest="data_file", type=str, required=True)
-    p.add_argument("--out_dir", type=str, default="runs/latest")
-    p.add_argument("--config", type=str, default=None)
-    p.add_argument("--tokenizer", type=str, default="char", choices=["char", "bpe"])
-    p.add_argument("--bpe_vocab_size", type=int, default=256)
-    p.add_argument("--download.text8_mini", dest="dl_text8", action="store_true")
-    p.add_argument("--data.use_mmap", dest="use_mmap", action="store_true")
+    p.add_argument("--data.file", dest="data_file", type=str, required=True, help="Path to input text file")
+    p.add_argument("--out_dir", type=str, default="runs/latest", help="Output directory for checkpoints and logs")
+    p.add_argument("--config", type=str, default=None, help="YAML config to load as base")
+    p.add_argument("--tokenizer", type=str, default="char", choices=["char", "bpe"], help="Tokenizer type")
+    p.add_argument("--bpe_vocab_size", type=int, default=256, help="BPE vocabulary size if tokenizer=bpe")
+    p.add_argument("--download.text8_mini", dest="dl_text8", action="store_true", help="Download a tiny text8 sample and override --data.file")
+    p.add_argument("--data.use_mmap", dest="use_mmap", action="store_true", help="Use memory-mapped block sampler for large files")
 
     # Model
-    p.add_argument("--model", type=str, default="gpt_mini")
-    p.add_argument("--vocab_size", type=int, default=128)
-    p.add_argument("--block_size", type=int, default=128)
-    p.add_argument("--d_model", type=int, default=256)
-    p.add_argument("--n_layer", type=int, default=4)
-    p.add_argument("--n_head", type=int, default=4)
-    p.add_argument("--mlp_ratio", type=int, default=4)
+    p.add_argument("--model", type=str, default="gpt_mini", help="Model type: gpt_mini | rnn_mini | ssm_mini")
+    p.add_argument("--vocab_size", type=int, default=128, help="Model vocabulary size (min of tokenizer and this value is used)")
+    p.add_argument("--block_size", type=int, default=128, help="Context length / block size")
+    p.add_argument("--d_model", type=int, default=256, help="Model hidden dimension")
+    p.add_argument("--n_layer", type=int, default=4, help="Number of layers")
+    p.add_argument("--n_head", type=int, default=4, help="Number of attention heads (GPT only)")
+    p.add_argument("--mlp_ratio", type=int, default=4, help="MLP expansion ratio")
 
     # Train
-    p.add_argument("--batch_size", type=int, default=32)
-    p.add_argument("--microbatch", type=int, default=1)
-    p.add_argument("--grad_accum", type=int, default=64)
-    p.add_argument("--grad_clip", type=float, default=1.0)
-    p.add_argument("--train_steps", type=int, default=300)
-    p.add_argument("--eval_every", type=int, default=100)
-    p.add_argument("--save_every", type=int, default=150)
+    p.add_argument("--batch_size", type=int, default=32, help="Global batch size (may be simulated via grad_accum)")
+    p.add_argument("--microbatch", type=int, default=1, help="Per-step microbatch size")
+    p.add_argument("--grad_accum", type=int, default=64, help="Gradient accumulation steps")
+    p.add_argument("--grad_clip", type=float, default=1.0, help="Gradient clipping norm (0 or negative disables)")
+    p.add_argument("--train_steps", type=int, default=300, help="Number of training steps")
+    p.add_argument("--eval_every", type=int, default=100, help="Evaluate validation BPC every N steps")
+    p.add_argument("--save_every", type=int, default=150, help="Save checkpoint every N steps")
 
     # Optim
-    p.add_argument("--lr", type=float, default=3e-3)
-    p.add_argument("--weight_decay", type=float, default=0.1)
-    p.add_argument("--beta1", type=float, default=0.9)
-    p.add_argument("--beta2", type=float, default=0.95)
-    p.add_argument("--warmup_steps", type=int, default=50)
-    p.add_argument("--ema", action="store_true")
+    p.add_argument("--lr", type=float, default=3e-3, help="Base learning rate")
+    p.add_argument("--weight_decay", type=float, default=0.1, help="AdamW weight decay")
+    p.add_argument("--beta1", type=float, default=0.9, help="AdamW beta1")
+    p.add_argument("--beta2", type=float, default=0.95, help="AdamW beta2")
+    p.add_argument("--warmup_steps", type=int, default=50, help="Cosine schedule warmup steps")
+    p.add_argument("--ema", action="store_true", help="Enable Exponential Moving Average of parameters")
     args = p.parse_args(argv)
 
     set_seed(args.seed)
@@ -104,6 +109,7 @@ def main(argv=None):
         tokenizer=args.tokenizer,
         bpe_vocab_size=args.bpe_vocab_size,
         use_mmap=args.use_mmap,
+        verbosity=(1 + int(args.verbose)),
         compile=args.compile,
         compile_validate=args.compile_validate,
         compile_auto=args.compile_auto,

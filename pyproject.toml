@@ -25,6 +25,8 @@ Repository = "https://github.com/paredezadrian/syntrix-base"
 [project.scripts]
 "syntrix.train" = "syntrix.cli_train:main"
 "syntrix.sample" = "syntrix.cli_sample:main"
+"syntrix.eval" = "syntrix.cli_eval:main"
+"syntrix.config" = "syntrix.cli_config:main"
 
 [tool.setuptools.packages.find]
 include = ["syntrix*"]
