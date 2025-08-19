@@ -71,14 +71,18 @@ def tokens_from_text(text: str, tokenizer: CharTokenizer) -> torch.Tensor:
     return torch.tensor(ids, dtype=torch.long)
 
 
-def split_train_val(tokens: torch.Tensor, val_ratio: float = 0.05, seed: int = 1337) -> Tuple[torch.Tensor, torch.Tensor]:
+def split_train_val(
+    tokens: torch.Tensor, val_ratio: float = 0.05, seed: int = 1337
+) -> Tuple[torch.Tensor, torch.Tensor]:
     torch.manual_seed(seed)
     n = tokens.numel()
     split = int(n * (1 - val_ratio))
     return tokens[:split], tokens[split:]
 
 
-def sample_batch(tokens: torch.Tensor, batch_size: int, block_size: int) -> Tuple[torch.Tensor, torch.Tensor]:
+def sample_batch(
+    tokens: torch.Tensor, batch_size: int, block_size: int
+) -> Tuple[torch.Tensor, torch.Tensor]:
     # Random contiguous blocks
     n = tokens.numel() - block_size - 1
     idx = torch.randint(0, max(n, 1), (batch_size,))
@@ -87,7 +91,13 @@ def sample_batch(tokens: torch.Tensor, batch_size: int, block_size: int) -> Tupl
     return x, y
 
 
-def evaluate_bpc(model: torch.nn.Module, tokens: torch.Tensor, block_size: int, iters: int = 20, batch_size: int = 32) -> float:
+def evaluate_bpc(
+    model: torch.nn.Module,
+    tokens: torch.Tensor,
+    block_size: int,
+    iters: int = 20,
+    batch_size: int = 32,
+) -> float:
     model.eval()
     losses = []
     with torch.no_grad():
@@ -116,7 +126,9 @@ class Trainer:
         else:
             self.tokenizer = CharTokenizer(raw_text)
         tokens = tokens_from_text(raw_text, self.tokenizer)
-        self.train_tokens, self.val_tokens = split_train_val(tokens, val_ratio=0.05, seed=args.seed)
+        self.train_tokens, self.val_tokens = split_train_val(
+            tokens, val_ratio=0.05, seed=args.seed
+        )
 
         vocab_size = max(self.tokenizer.vocab_size, args.vocab_size)
         if args.model == "gpt_mini":
@@ -150,9 +162,17 @@ class Trainer:
         # Optional compile and validation
         self.model = self._maybe_compile_model(self.model)
 
-        self.optimizer = AdamW(self.model.parameters(), lr=args.lr, betas=args.betas, weight_decay=args.weight_decay)
+        self.optimizer = AdamW(
+            self.model.parameters(),
+            lr=args.lr,
+            betas=args.betas,
+            weight_decay=args.weight_decay,
+        )
         self.scheduler = CosineWithWarmup(
-            base_lr=args.lr, warmup_steps=args.warmup_steps, total_steps=args.train_steps, min_lr=0.0
+            base_lr=args.lr,
+            warmup_steps=args.warmup_steps,
+            total_steps=args.train_steps,
+            min_lr=0.0,
         )
         self.ema = EMA(self.model.parameters()) if args.ema else None
 
@@ -191,9 +211,15 @@ class Trainer:
             loss_accum = 0.0
             for i in range(args.grad_accum):
                 if args.use_mmap:
-                    xb, yb = mmap_random_block_batch(args.data_file, batch_size=args.microbatch, block_size=args.block_size)
+                    xb, yb = mmap_random_block_batch(
+                        args.data_file,
+                        batch_size=args.microbatch,
+                        block_size=args.block_size,
+                    )
                 else:
-                    xb, yb = sample_batch(self.train_tokens, args.microbatch, args.block_size)
+                    xb, yb = sample_batch(
+                        self.train_tokens, args.microbatch, args.block_size
+                    )
                 logits = model(xb)
                 loss = F.cross_entropy(logits.view(-1, logits.size(-1)), yb.view(-1))
                 (loss / args.grad_accum).backward()
@@ -209,21 +235,33 @@ class Trainer:
             global_step += 1
 
             if step % args.eval_every == 0 or step == 1:
-                bpc = evaluate_bpc(model, self.val_tokens, args.block_size, iters=10, batch_size=min(16, args.batch_size))
+                bpc = evaluate_bpc(
+                    model,
+                    self.val_tokens,
+                    args.block_size,
+                    iters=10,
+                    batch_size=min(16, args.batch_size),
+                )
                 dt = max(1e-6, (time.time() - t0))
                 tok_s = (args.grad_accum * args.microbatch * args.block_size) / dt
                 if args.verbosity >= 2:
-                    print(f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f} | dt {dt:.3f}s")
+                    print(
+                        f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f} | dt {dt:.3f}s"
+                    )
                 elif args.verbosity >= 1:
-                    print(f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f}")
-                self._log({
-                    "step": step,
-                    "loss": loss_accum/args.grad_accum,
-                    "val_bpc": bpc,
-                    "lr": lr,
-                    "tokens_per_s": tok_s,
-                    "elapsed_s": dt,
-                })
+                    print(
+                        f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f}"
+                    )
+                self._log(
+                    {
+                        "step": step,
+                        "loss": loss_accum / args.grad_accum,
+                        "val_bpc": bpc,
+                        "lr": lr,
+                        "tokens_per_s": tok_s,
+                        "elapsed_s": dt,
+                    }
+                )
                 t0 = time.time()
 
             if step % args.save_every == 0 or step == args.train_steps:
@@ -247,14 +285,17 @@ class Trainer:
                     ckpt_path,
                 )
 
-
-    def _measure_forward_throughput(self, model: torch.nn.Module, steps: int = 20) -> float:
+    def _measure_forward_throughput(
+        self, model: torch.nn.Module, steps: int = 20
+    ) -> float:
         args = self.args
         model_was_training = model.training
         model.eval()
         # warmup
         with torch.no_grad():
-            xb, yb = sample_batch(self.train_tokens, max(1, args.microbatch), args.block_size)
+            xb, yb = sample_batch(
+                self.train_tokens, max(1, args.microbatch), args.block_size
+            )
             for _ in range(3):
                 _ = model(xb)
             t0 = time.time()
@@ -266,7 +307,6 @@ class Trainer:
         if model_was_training:
             model.train()
         return tokens / dt
-
 
     def _maybe_compile_model(self, model: torch.nn.Module) -> torch.nn.Module:
         args = self.args
@@ -282,19 +322,14 @@ class Trainer:
             self._used_compiled = compiled is not model
             return compiled
 
-    def _get_git_commit_short(self) -> str:
-        try:
-            out = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL)
-            return out.decode().strip()
-        except Exception:
-            return ""
-
         # Validate throughput and optionally auto-select
         base_tps = self._measure_forward_throughput(model, steps=10)
         compiled = try_compile(model, enabled=True)
         comp_tps = self._measure_forward_throughput(compiled, steps=10)
 
-        improved = comp_tps >= (base_tps * float(max(1.0, args.compile_min_improvement)))
+        improved = comp_tps >= (
+            base_tps * float(max(1.0, args.compile_min_improvement))
+        )
         if args.compile_auto:
             if improved:
                 self._used_compiled = True
@@ -307,3 +342,11 @@ class Trainer:
             self._used_compiled = compiled is not model
             return compiled
 
+    def _get_git_commit_short(self) -> str:
+        try:
+            out = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL
+            )
+            return out.decode().strip()
+        except Exception:
+            return ""
