@@ -13,7 +13,10 @@ def main(argv=None):
     p.add_argument("--threads", type=int, default=4)
     p.add_argument("--seed", type=int, default=1337)
     p.add_argument("--dtype", type=str, default="float32", choices=["float32", "float64"])
-    p.add_argument("--compile", action="store_true")
+    p.add_argument("--compile", action="store_true", help="Enable torch.compile if available")
+    p.add_argument("--compile.validate", dest="compile_validate", action="store_true", help="Benchmark forward throughput to validate compile speedup")
+    p.add_argument("--compile.auto", dest="compile_auto", action="store_true", help="Auto-enable compile only if validation shows improvement")
+    p.add_argument("--compile.min_improvement", dest="compile_min_improvement", type=float, default=1.05, help="Minimum throughput improvement ratio to accept compile in auto mode")
 
     # Data & IO
     p.add_argument("--data.file", dest="data_file", type=str, required=True)
@@ -101,7 +104,10 @@ def main(argv=None):
         tokenizer=args.tokenizer,
         bpe_vocab_size=args.bpe_vocab_size,
         use_mmap=args.use_mmap,
-        # compile flag is recognized but not used directly in TrainArgs; Trainer can read from env/args if extended
+        compile=args.compile,
+        compile_validate=args.compile_validate,
+        compile_auto=args.compile_auto,
+        compile_min_improvement=args.compile_min_improvement,
         ema=args.ema,
         out_dir=args.out_dir,
     )
