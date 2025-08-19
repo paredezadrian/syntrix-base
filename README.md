@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/paredezadrian/syntrix-base/actions/workflows/codeql.yml/badge.svg)](https://github.com/paredezadrian/syntrix-base/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/syntrix.svg)](https://pypi.org/project/syntrix/)
-[![Python](https://img.shields.io/pypi/pyversions/syntrix.svg)](https://pypi.org/project/syntrix/)
+[![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://pypi.org/project/syntrix/)
 
 Train and run modern small models fast on everyday CPUs — simple, transparent, and reproducible.
 
