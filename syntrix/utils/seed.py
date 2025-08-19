@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import torch
+from typing import Tuple
 
 
 def set_seed(seed: int) -> None:
@@ -38,6 +39,13 @@ def try_compile(model: torch.nn.Module, enabled: bool) -> torch.nn.Module:
     """
     if not enabled:
         return model
+
+
+def tolerance_for_dtype(dtype: torch.dtype) -> Tuple[float, float]:
+    """Return (rtol, atol) suitable for numeric checks under a dtype."""
+    if dtype == torch.float64:
+        return (1e-5, 1e-8)
+    return (1e-4, 1e-6)
     compile_fn = getattr(torch, "compile", None)
     if compile_fn is None:
         return model

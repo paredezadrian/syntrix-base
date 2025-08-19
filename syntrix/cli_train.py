@@ -1,4 +1,5 @@
 import argparse
+import os
 import torch
 from .utils.seed import set_seed, set_threads, get_dtype
 from .utils.config import load_yaml_config
@@ -53,6 +54,9 @@ def main(argv=None):
     set_threads(args.threads)
     dtype = get_dtype(args.dtype)
     torch.set_default_dtype(dtype)
+
+    if args.compile:
+        os.environ["SYNTRIX_COMPILE"] = "1"
 
     # Load base config if provided, then override with CLI flags
     if args.config:
