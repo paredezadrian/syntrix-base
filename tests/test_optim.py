@@ -1,4 +1,5 @@
 import math
+import pytest
 import torch
 
 from syntrix.optim.schedule import CosineWithWarmup
