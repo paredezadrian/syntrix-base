@@ -30,11 +30,13 @@ class CosineWithWarmup:
         s = self.step_num if step is None else step
         if s < self.warmup_steps and self.warmup_steps > 0:
             return self.base_lr * (s + 1) / self.warmup_steps
-        # cosine phase
-        s_rel = min(max(s - self.warmup_steps, 0), max(self.total_steps - self.warmup_steps, 1))
-        if self.total_steps <= self.warmup_steps:
+        # cosine phase: ensure last step hits min_lr by using denom = steps_cosine - 1
+        steps_cosine = self.total_steps - self.warmup_steps
+        if steps_cosine <= 1:
             return self.min_lr
-        cosine = 0.5 * (1 + math.cos(math.pi * s_rel / (self.total_steps - self.warmup_steps)))
+        denom = steps_cosine - 1
+        s_rel = min(max(s - self.warmup_steps, 0), denom)
+        cosine = 0.5 * (1 + math.cos(math.pi * s_rel / denom))
         return self.min_lr + (self.base_lr - self.min_lr) * cosine
 
     def step(self) -> float:
