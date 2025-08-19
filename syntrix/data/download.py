@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import io
-import os
 import zipfile
 from pathlib import Path
 from urllib.request import urlopen
@@ -10,7 +9,9 @@ from urllib.request import urlopen
 TEXT8_URL = "http://mattmahoney.net/dc/text8.zip"
 
 
-def download_text8_mini(output_path: str = "data/text8-mini.txt", size_mb: int = 5) -> str:
+def download_text8_mini(
+    output_path: str = "data/text8-mini.txt", size_mb: int = 5
+) -> str:
     """Download the text8 corpus and write a small substring as a mini dataset.
 
     - Downloads `text8.zip` (~31 MB), extracts `text8` (~100 MB raw), then writes the
@@ -28,5 +29,3 @@ def download_text8_mini(output_path: str = "data/text8-mini.txt", size_mb: int =
     with open(output_path, "wb") as f:
         f.write(subset)
     return output_path
-
-

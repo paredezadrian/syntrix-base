@@ -7,7 +7,7 @@ We take the security of Syntrix-Base seriously. This document explains how to re
 We provide security updates for the following versions:
 
 - Main branch (active development)
-- Latest minor release (currently v0.1.x)
+- Latest minor release (currently v0.3.x)
 
 Older versions may receive fixes at the maintainers’ discretion.
 
@@ -55,3 +55,7 @@ Out of scope:
 - Validate data sources; do not execute untrusted configs/scripts
 
 Thank you for helping keep Syntrix-Base and its users safe.
+
+## Licensing Notice
+
+Syntrix-Base is distributed under MIT with Commons Clause (non‑commercial). Security reports should focus on confidentiality, integrity, and availability risks independent of licensing constraints.

@@ -38,8 +38,13 @@ def mmap_random_block_batch(
         idx = torch.randint(0, n, (batch_size,))
     else:
         idx = torch.randint(0, n, (batch_size,), generator=generator)
-    x = torch.stack([torch.tensor(list(data[i : i + block_size]), dtype=torch.long) for i in idx])
-    y = torch.stack([torch.tensor(list(data[i + 1 : i + 1 + block_size]), dtype=torch.long) for i in idx])
+    x = torch.stack(
+        [torch.tensor(list(data[i : i + block_size]), dtype=torch.long) for i in idx]
+    )
+    y = torch.stack(
+        [
+            torch.tensor(list(data[i + 1 : i + 1 + block_size]), dtype=torch.long)
+            for i in idx
+        ]
+    )
     return x, y
-
-

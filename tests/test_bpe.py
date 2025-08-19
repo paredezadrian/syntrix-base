@@ -7,5 +7,3 @@ def test_bpe_round_trip_small_text():
     ids = tok.encode(text)
     dec = tok.decode(ids)
     assert dec == text
-
-

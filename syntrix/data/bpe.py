@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import Counter, defaultdict
+from collections import Counter
 from typing import Dict, List, Tuple
 
 
@@ -20,7 +20,12 @@ class BPETokenizer:
     Trains merges greedily to reach target vocab size.
     """
 
-    def __init__(self, text: str | None = None, vocab_size: int = 256, vocab_tokens: List[str] | None = None):
+    def __init__(
+        self,
+        text: str | None = None,
+        vocab_size: int = 256,
+        vocab_tokens: List[str] | None = None,
+    ):
         # If explicit vocab is provided, initialize directly
         if vocab_tokens is not None:
             self.stoi = {tok: i for i, tok in enumerate(vocab_tokens)}
@@ -123,5 +128,3 @@ class BPETokenizer:
             tok = self.itos.get(i, "")
             chars.append(tok)
         return "".join(chars)
-
-

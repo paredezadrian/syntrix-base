@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Tuple
+from typing import Iterable
 import torch
 
 
@@ -26,5 +26,3 @@ class EMA:
     def copy_to(self, params: Iterable[torch.nn.Parameter]):
         for s, p in zip(self.shadow, params):
             p.copy_(s)
-
-

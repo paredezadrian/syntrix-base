@@ -30,7 +30,9 @@ def load_text_file(path: str) -> str:
     return Path(path).read_text(encoding="utf-8")
 
 
-def make_char_dataset(text: str, block_size: int, tokenizer: Optional[CharTokenizer] = None) -> Tuple[np.ndarray, np.ndarray]:
+def make_char_dataset(
+    text: str, block_size: int, tokenizer: Optional[CharTokenizer] = None
+) -> Tuple[np.ndarray, np.ndarray]:
     if tokenizer is None:
         tokenizer = CharTokenizer(text)
     data = np.array(tokenizer.encode(text), dtype=np.int32)
@@ -83,7 +85,14 @@ def random_block_batch(
 class TokenBatchIterator:
     """Simple iterator yielding random block batches with a seeded generator."""
 
-    def __init__(self, tokens: torch.Tensor, block_size: int, batch_size: int, steps: int, seed: int = 0):
+    def __init__(
+        self,
+        tokens: torch.Tensor,
+        block_size: int,
+        batch_size: int,
+        steps: int,
+        seed: int = 0,
+    ):
         self.tokens = tokens
         self.block_size = block_size
         self.batch_size = batch_size
@@ -92,6 +101,6 @@ class TokenBatchIterator:
 
     def __iter__(self):
         for _ in range(self.steps):
-            yield random_block_batch(self.tokens, self.batch_size, self.block_size, self.generator)
-
-
+            yield random_block_batch(
+                self.tokens, self.batch_size, self.block_size, self.generator
+            )

@@ -39,7 +39,9 @@ class CausalSelfAttention(nn.Module):
         self.norm = RMSNorm(d_model)
         self.qkv = nn.Linear(d_model, 3 * d_model, bias=bias)
         self.proj = nn.Linear(d_model, d_model, bias=bias)
-        self.dropout = nn.Dropout(dropout) if dropout and dropout > 0.0 else nn.Identity()
+        self.dropout = (
+            nn.Dropout(dropout) if dropout and dropout > 0.0 else nn.Identity()
+        )
 
     def _shape(self, x: torch.Tensor) -> torch.Tensor:
         bsz, seq_len, _ = x.shape
@@ -85,8 +87,10 @@ class CausalSelfAttention(nn.Module):
         # scaled dot-product attention with explicit causal mask
         scale = 1.0 / math.sqrt(self.head_dim)
         attn_scores = torch.matmul(q, k.transpose(-2, -1)) * scale  # (B, H, T, T)
-        causal_mask = torch.ones(seq_len, seq_len, device=x.device, dtype=torch.bool).triu(1)
-        attn_scores = attn_scores.masked_fill(causal_mask, float('-inf'))
+        causal_mask = torch.ones(
+            seq_len, seq_len, device=x.device, dtype=torch.bool
+        ).triu(1)
+        attn_scores = attn_scores.masked_fill(causal_mask, float("-inf"))
         attn = F.softmax(attn_scores, dim=-1)
         attn = self.dropout(attn)
 
@@ -97,5 +101,3 @@ class CausalSelfAttention(nn.Module):
         if return_attn_weights:
             return y, attn
         return y
-
-

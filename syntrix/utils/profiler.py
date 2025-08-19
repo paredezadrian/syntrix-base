@@ -21,5 +21,3 @@ class Throughput:
     def per_second(self) -> float:
         dt = max(1e-6, time.time() - self.t0)
         return self.count / dt
-
-

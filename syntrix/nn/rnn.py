@@ -15,7 +15,9 @@ class GatedRNN(nn.Module):
     def __init__(self, d_model: int, mlp_ratio: int = 4):
         super().__init__()
         self.rnn_norm = RMSNorm(d_model)
-        self.gru = nn.GRU(input_size=d_model, hidden_size=d_model, num_layers=1, batch_first=True)
+        self.gru = nn.GRU(
+            input_size=d_model, hidden_size=d_model, num_layers=1, batch_first=True
+        )
         hidden_dim = mlp_ratio * d_model
         self.mlp_norm = RMSNorm(d_model)
         self.mlp_up = SwiGLU(d_model, hidden_dim)
@@ -28,5 +30,3 @@ class GatedRNN(nn.Module):
         y = self.mlp_down(self.mlp_up(self.mlp_norm(x)))
         x = x + y
         return x
-
-

@@ -8,5 +8,3 @@ def collate_microbatches(xs, ys, microbatch: int):
         xb = torch.tensor(xs[i : i + microbatch], dtype=torch.long)
         yb = torch.tensor(ys[i : i + microbatch], dtype=torch.long)
         yield xb, yb
-
-

@@ -1,5 +1,4 @@
 import torch
-import pytest
 from syntrix.utils.seed import tolerance_for_dtype
 
 from syntrix.nn.layers import RMSNorm, SwiGLU, RotaryEmbedding
@@ -34,7 +33,10 @@ def test_rope_rotation_toy():
     # Check shape and that odd dims receive non-zero due to rotation (except t=0)
     assert y.shape == x.shape
     rtol, atol = tolerance_for_dtype(y.dtype)
-    assert torch.allclose(y[0, 0, 1::2], torch.tensor([0.0, 0.0, 0.0, 0.0], dtype=y.dtype), rtol=rtol, atol=atol)
+    assert torch.allclose(
+        y[0, 0, 1::2],
+        torch.tensor([0.0, 0.0, 0.0, 0.0], dtype=y.dtype),
+        rtol=rtol,
+        atol=atol,
+    )
     assert (y[0, 1:, 1::2].abs().sum() > 0).item()
-
-

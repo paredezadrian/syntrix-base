@@ -35,5 +35,3 @@ def test_causal_masking():
     upper = torch.triu(weights[0, 0], diagonal=1)
     rtol, atol = tolerance_for_dtype(upper.dtype)
     assert torch.allclose(upper, torch.zeros_like(upper), rtol=rtol, atol=atol)
-
-

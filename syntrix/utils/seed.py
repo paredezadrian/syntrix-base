@@ -48,10 +48,9 @@ def try_compile(model: torch.nn.Module, enabled: bool) -> torch.nn.Module:
     except Exception:
         return model
 
+
 def tolerance_for_dtype(dtype: torch.dtype) -> Tuple[float, float]:
     """Return (rtol, atol) suitable for numeric checks under a dtype."""
     if dtype == torch.float64:
         return (1e-5, 1e-8)
     return (1e-4, 1e-6)
-
-

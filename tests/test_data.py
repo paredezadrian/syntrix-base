@@ -25,4 +25,3 @@ def test_token_batch_iterator_shapes():
     for xb, yb in it:
         assert xb.shape == (4, 16)
         assert yb.shape == (4, 16)
-

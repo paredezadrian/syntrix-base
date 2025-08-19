@@ -15,14 +15,18 @@ def run_short_training(seed: int = 1234, threads: int = 2):
     tokens = torch.tensor(tok.encode(text), dtype=torch.long)
 
     # Small model for speed
-    model = GPTMini(vocab_size=tok.vocab_size, d_model=32, n_layer=2, n_head=4, block_size=16)
+    model = GPTMini(
+        vocab_size=tok.vocab_size, d_model=32, n_layer=2, n_head=4, block_size=16
+    )
     optim = torch.optim.AdamW(model.parameters(), lr=1e-3, betas=(0.9, 0.95))
 
     losses = []
     for _ in range(5):
         xb, yb = random_block_batch(tokens, batch_size=2, block_size=16)
         logits = model(xb)
-        loss = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), yb.view(-1))
+        loss = torch.nn.functional.cross_entropy(
+            logits.view(-1, logits.size(-1)), yb.view(-1)
+        )
         loss.backward()
         optim.step()
         optim.zero_grad(set_to_none=True)
@@ -39,5 +43,3 @@ def test_deterministic_losses_reproduce():
     rtol, atol = tolerance_for_dtype(torch.get_default_dtype())
     for la, lb in zip(a, b):
         assert abs(la - lb) <= max(atol, rtol * max(abs(la), abs(lb)))
-
-
