@@ -27,3 +27,15 @@ syntrix.sample \
 
 See `configs/` for example configs and `examples/tiny_char_model.md`.
 For CPU performance guidance and reproducible runs, see `docs/benchmarks.md`.
+
+## Contributing
+
+We welcome contributions of all kinds: bug fixes, new features, documentation, and benchmarks.
+
+- Please read `CONTRIBUTING.md` for our contribution process, coding/testing/documentation standards, and PR guidelines.
+- All participants are expected to follow our `CODE_OF_CONDUCT.md`.
+
+## Governance & Support
+
+- Issues: Use GitHub Issues for bug reports and feature requests. Include OS, Python, and PyTorch versions, steps to reproduce, and expected vs. actual behavior.
+- CI: Pull requests must pass the GitHub Actions CI (pytest on Python 3.10/3.11/3.12).
