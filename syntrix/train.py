@@ -4,6 +4,7 @@ import json
 import math
 import os
 import time
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple
@@ -173,6 +174,7 @@ class Trainer:
                 "event": "env",
                 "python": platform.python_version(),
                 "torch": torch.__version__,
+                "git_commit": self._get_git_commit_short(),
                 "threads": {
                     "torch_num_threads": torch.get_num_threads(),
                     "omp": os.environ.get("OMP_NUM_THREADS"),
@@ -206,7 +208,8 @@ class Trainer:
 
             if step % args.eval_every == 0 or step == 1:
                 bpc = evaluate_bpc(model, self.val_tokens, args.block_size, iters=10, batch_size=min(16, args.batch_size))
-                tok_s = (args.grad_accum * args.microbatch * args.block_size) / max(1e-6, (time.time() - t0))
+                dt = max(1e-6, (time.time() - t0))
+                tok_s = (args.grad_accum * args.microbatch * args.block_size) / dt
                 print(f"step {step} | loss {loss_accum/args.grad_accum:.3f} | val bpc {bpc:.3f} | lr {lr:.2e} | tok/s {tok_s:.0f}")
                 self._log({
                     "step": step,
@@ -214,6 +217,7 @@ class Trainer:
                     "val_bpc": bpc,
                     "lr": lr,
                     "tokens_per_s": tok_s,
+                    "elapsed_s": dt,
                 })
                 t0 = time.time()
 
@@ -272,6 +276,13 @@ class Trainer:
             compiled = try_compile(model, enabled=True)
             self._used_compiled = compiled is not model
             return compiled
+
+    def _get_git_commit_short(self) -> str:
+        try:
+            out = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL)
+            return out.decode().strip()
+        except Exception:
+            return ""
 
         # Validate throughput and optionally auto-select
         base_tps = self._measure_forward_throughput(model, steps=10)
