@@ -8,6 +8,24 @@
 
 Train and run modern small models fast on everyday CPUs — simple, transparent, and reproducible.
 
+## Table of Contents
+
+- Why Syntrix‑Base?
+- Highlights
+- Requirements
+- Quickstart (pip and from source)
+- Usage (Train, Sample, Eval, Config)
+- Configuration overrides
+- Reproducibility & Determinism
+- Benchmarks
+- Troubleshooting
+- Contributing & Governance
+- License
+
+## Why Syntrix‑Base?
+
+Syntrix‑Base is a CPU‑first, deterministic learning toolkit for tiny but modern models. It emphasizes clarity over complexity: clean PyTorch code, reproducible logs, and practical CLIs that work well on everyday hardware.
+
 ## Highlights
 
 - CPU‑first ergonomics: pinned threads, deterministic seeds, dtype control
@@ -23,18 +41,18 @@ Train and run modern small models fast on everyday CPUs — simple, transparent,
 
 ## Quickstart
 
-### 1) Clone and install
+### Install (official, from PyPI)
+```bash
+pip install syntrix
+```
+
+### Alternative: From source (dev install)
 ```bash
 git clone https://github.com/paredezadrian/syntrix-base.git
 cd syntrix-base
 python3 -m venv venv && source venv/bin/activate
 pip install --upgrade pip
 pip install -e .
-```
-
-Install from PyPI (after publish):
-```bash
-pip install syntrix
 ```
 
 ### 2) Get sample data (TinyShakespeare)
@@ -78,10 +96,25 @@ syntrix.sample \
   --max_new_tokens 200 --temp 0.9
 ```
 
+### 5) Evaluate or validate config
+```bash
+# Evaluate a checkpoint (reports validation BPC)
+syntrix.eval --data.file data/tinyshakespeare.txt --ckpt runs/gpt-mini_base/ckpt.pt
+
+# Validate and inspect a YAML config
+syntrix.config --config configs/gpt-mini.yaml
+```
+
 ## Configuration
 
 - Base configs live in `configs/` (e.g., `configs/gpt-mini.yaml`).
 - You can override most settings via CLI flags. Some use dot notation (e.g., `--data.file`, `--download.text8_mini`).
+- Examples:
+```bash
+# Increase layers and reduce batch using dot-notation overrides
+syntrix.train --config configs/gpt-mini.yaml --data.file data/tinyshakespeare.txt \
+  --model.n_layer 6 --train.batch_size 16
+```
 - Precision: switch default dtype with `--dtype float32|float64`. Numeric tests use dtype‑aware tolerances.
 
 ## CLI Reference
@@ -107,7 +140,16 @@ Notable flags:
 
 ## Benchmarks
 
-For reproducible commands and example results tables, see `docs/benchmarks.md`.
+For reproducible commands and example results tables, see `docs/benchmarks.md` and architecture/FAQ in `docs/architecture.md`.
+
+## Troubleshooting
+
+- Non‑deterministic results:
+  - Ensure `--seed` and `--threads` are set; check `OMP_NUM_THREADS` and `MKL_NUM_THREADS`.
+- Slow throughput:
+  - Use smaller `--block_size`, small `--microbatch` with higher `--grad_accum`, and try `--compile --compile.validate --compile.auto`.
+- Memory constraints:
+  - Use `--data.use_mmap` for memory‑mapped random block sampling on large files.
 
 ## Contributing
 
@@ -125,35 +167,4 @@ We welcome contributions of all kinds: bug fixes, features, docs, and benchmarks
 
 MIT — see `LICENSE`.
 
-## Packaging & Publishing
-
-### Versioning Policy
-
-We follow Semantic Versioning (SemVer): `MAJOR.MINOR.PATCH`.
-- Increase MAJOR for incompatible API changes.
-- Increase MINOR for added functionality in a backward-compatible manner.
-- Increase PATCH for backward-compatible bug fixes.
-
-### Release Checklist
-
-1. Ensure all tests pass locally and in CI.
-2. Update `CHANGELOG.md` with a new section for the release.
-3. Bump the version in `pyproject.toml`.
-4. Commit changes and tag the release:
-   - `git commit -m "chore(release): bump version to X.Y.Z"`
-   - `git tag vX.Y.Z && git push origin main --tags`
-5. Build and upload to PyPI:
-   - `pip install build twine`
-   - `python -m build`
-   - `twine upload dist/*`
-6. Create a GitHub Release referencing the tag and the corresponding changelog notes.
-7. Verify README badges (CI, CodeQL, PyPI) render correctly.
-
-### Installing from PyPI (post‑publish)
-
-```bash
-pip install syntrix
-# verify CLI entry points
-syntrix.train --help
-syntrix.sample --help
-```
+ 
