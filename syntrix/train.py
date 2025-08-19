@@ -13,6 +13,8 @@ import torch.nn.functional as F
 from torch.optim import AdamW
 
 from .models.gpt_mini import GPTMini
+from .models.rnn_mini import RNNMini
+from .models.ssm_mini import SSMMini
 from .optim.schedule import CosineWithWarmup
 from .optim.ema import EMA
 from .utils.seed import set_seed, set_threads, get_dtype
@@ -99,17 +101,34 @@ class Trainer:
         tokens = tokens_from_text(raw_text, self.tokenizer)
         self.train_tokens, self.val_tokens = split_train_val(tokens, val_ratio=0.05, seed=args.seed)
 
-        if args.model != "gpt_mini":
-            raise ValueError("Only gpt_mini is implemented in MVP")
-
-        self.model = GPTMini(
-            vocab_size=max(self.tokenizer.vocab_size, args.vocab_size),
-            d_model=args.d_model,
-            n_layer=args.n_layer,
-            n_head=args.n_head,
-            block_size=args.block_size,
-            mlp_ratio=args.mlp_ratio,
-        )
+        vocab_size = max(self.tokenizer.vocab_size, args.vocab_size)
+        if args.model == "gpt_mini":
+            self.model = GPTMini(
+                vocab_size=vocab_size,
+                d_model=args.d_model,
+                n_layer=args.n_layer,
+                n_head=args.n_head,
+                block_size=args.block_size,
+                mlp_ratio=args.mlp_ratio,
+            )
+        elif args.model == "rnn_mini":
+            self.model = RNNMini(
+                vocab_size=vocab_size,
+                d_model=args.d_model,
+                n_layer=args.n_layer,
+                block_size=args.block_size,
+                mlp_ratio=args.mlp_ratio,
+            )
+        elif args.model == "ssm_mini":
+            self.model = SSMMini(
+                vocab_size=vocab_size,
+                d_model=args.d_model,
+                n_layer=args.n_layer,
+                block_size=args.block_size,
+                mlp_ratio=args.mlp_ratio,
+            )
+        else:
+            raise ValueError(f"Unknown model {args.model}")
 
         self.optimizer = AdamW(self.model.parameters(), lr=args.lr, betas=args.betas, weight_decay=args.weight_decay)
         self.scheduler = CosineWithWarmup(
