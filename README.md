@@ -26,3 +26,4 @@ syntrix.sample \
 ```
 
 See `configs/` for example configs and `examples/tiny_char_model.md`.
+For CPU performance guidance and reproducible runs, see `docs/benchmarks.md`.

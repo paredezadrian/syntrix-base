@@ -180,3 +180,4 @@ jq -r 'select(.step!=null) | [.step, .val_bpc, .tokens_per_s] | @csv' runs/gpt-m
 ## Recreate this page on your machine
 
 Run the commands above, then paste your measured values into the tables. Optionally, add your hardware block at the top for clarity.
+
