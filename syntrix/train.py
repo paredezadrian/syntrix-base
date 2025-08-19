@@ -17,7 +17,7 @@ from .models.rnn_mini import RNNMini
 from .models.ssm_mini import SSMMini
 from .optim.schedule import CosineWithWarmup
 from .optim.ema import EMA
-from .utils.seed import set_seed, set_threads, get_dtype
+from .utils.seed import set_seed, set_threads, get_dtype, try_compile
 from .data.text import CharTokenizer, load_text_file
 from .data.bpe import BPETokenizer
 import platform
@@ -135,6 +135,9 @@ class Trainer:
             )
         else:
             raise ValueError(f"Unknown model {args.model}")
+
+        # Optional compile (no-op if unavailable)
+        self.model = try_compile(self.model, enabled=os.environ.get("SYNTRIX_COMPILE", "0") == "1")
 
         self.optimizer = AdamW(self.model.parameters(), lr=args.lr, betas=args.betas, weight_decay=args.weight_decay)
         self.scheduler = CosineWithWarmup(

@@ -2,6 +2,7 @@ import argparse
 import torch
 from .utils.seed import set_seed, set_threads, get_dtype
 from .utils.config import load_yaml_config
+from .data.download import download_text8_mini
 from .train import Trainer, TrainArgs
 
 
@@ -19,6 +20,7 @@ def main(argv=None):
     p.add_argument("--config", type=str, default=None)
     p.add_argument("--tokenizer", type=str, default="char", choices=["char", "bpe"])
     p.add_argument("--bpe_vocab_size", type=int, default=256)
+    p.add_argument("--download.text8_mini", dest="dl_text8", action="store_true")
 
     # Model
     p.add_argument("--model", type=str, default="gpt_mini")
@@ -63,6 +65,10 @@ def main(argv=None):
         model = None
         train_cfg = None
         optim = None
+
+    if args.dl_text8:
+        # download minimal text8 if requested and override data_file
+        args.data_file = download_text8_mini()
 
     train_args = TrainArgs(
         data_file=args.data_file,

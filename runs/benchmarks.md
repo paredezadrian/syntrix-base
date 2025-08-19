@@ -43,7 +43,7 @@ syntrix.train \
   --out_dir runs/gpt-mini
 ```
 
-Observed (example run):
+Observed (example run on i5-11320H, 4 threads):
 
-- Step 100: val bpc ~2.9; tok/s ~30–50
-- Step 300: val bpc ~2.4; final checkpoint saved
+- Step 100: val bpc ≈ 2.9; tok/s ≈ 30–50
+- Step 300: val bpc ≈ 2.4; final checkpoint saved
