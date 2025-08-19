@@ -55,14 +55,32 @@ class CausalSelfAttention(nn.Module):
         x = self.norm(x)
         qkv = self.qkv(x)  # (B, T, 3*D)
         q, k, v = qkv.chunk(3, dim=-1)
-        q = self._shape(q)
-        k = self._shape(k)
-        v = self._shape(v)
 
+        # Handle RoPE with flexibility: apply either in model space (D)
+        # before head-splitting, or per-head (head_dim) after splitting.
         if self.rope is not None:
-            cos, sin = self.rope.get_cos_sin(seq_len, x.device, x.dtype)
-            q = self.rope.apply_rotary(q, cos, sin)
-            k = self.rope.apply_rotary(k, cos, sin)
+            if self.rope.dim == self.d_model:
+                cos, sin = self.rope.get_cos_sin(seq_len, x.device, x.dtype)
+                q = self.rope.apply_rotary(q, cos, sin)
+                k = self.rope.apply_rotary(k, cos, sin)
+                q = self._shape(q)
+                k = self._shape(k)
+                v = self._shape(v)
+            elif self.rope.dim == self.head_dim:
+                q = self._shape(q)
+                k = self._shape(k)
+                v = self._shape(v)
+                cos, sin = self.rope.get_cos_sin(seq_len, x.device, x.dtype)
+                q = self.rope.apply_rotary(q, cos, sin)
+                k = self.rope.apply_rotary(k, cos, sin)
+            else:
+                raise ValueError(
+                    f"RoPE dim {self.rope.dim} must equal d_model {self.d_model} or head_dim {self.head_dim}"
+                )
+        else:
+            q = self._shape(q)
+            k = self._shape(k)
+            v = self._shape(v)
 
         # scaled dot-product attention with explicit causal mask
         scale = 1.0 / math.sqrt(self.head_dim)
