@@ -7,7 +7,7 @@ We take the security of Syntrix-Base seriously. This document explains how to re
 We provide security updates for the following versions:
 
 - Main branch (active development)
-- Latest minor release (currently v0.2.1)
+- Latest minor release (currently v0.3.x)
 
 Older versions may receive fixes at the maintainers’ discretion.
 

@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "Syntrix-Base: CPU-first ML framework with tiny models and deterministic training"
+message: "If you use Syntrix-Base in your work, please cite this software."
+type: software
+authors:
+  - family-names: Paredez
+    given-names: Adrian
+repository-code: https://github.com/paredezadrian/syntrix-base
+keywords:
+  - machine learning
+  - deep learning
+  - transformer
+  - state-space models
+  - CPU-first
+license: "MIT with Commons Clause (non-commercial)"
+version: "0.3.0"
+date-released: "2025-08-19"
+
