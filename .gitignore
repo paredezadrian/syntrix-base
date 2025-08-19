@@ -64,3 +64,7 @@ coverage.xml
 .env
 .env.local
 .env.*.local
+
+# Local data and runs
+data/
+runs/
