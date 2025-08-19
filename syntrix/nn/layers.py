@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from typing import Tuple
 
 import torch
@@ -60,7 +59,9 @@ class RotaryEmbedding(nn.Module):
         self.register_buffer("inv_freq", inv_freq, persistent=False)
 
     @torch.no_grad()
-    def get_cos_sin(self, seq_len: int, device: torch.device, dtype: torch.dtype) -> Tuple[torch.Tensor, torch.Tensor]:
+    def get_cos_sin(
+        self, seq_len: int, device: torch.device, dtype: torch.dtype
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         # freqs: (seq_len, dim/2)
         t = torch.arange(seq_len, device=device, dtype=self.inv_freq.dtype)
         freqs = torch.einsum("i,j->ij", t, self.inv_freq)  # (T, D/2)
@@ -75,7 +76,9 @@ class RotaryEmbedding(nn.Module):
             y = y.unsqueeze(0)
         return y
 
-    def apply_rotary(self, x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.Tensor:
+    def apply_rotary(
+        self, x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor
+    ) -> torch.Tensor:
         """Apply RoPE rotation to x using provided cos/sin.
 
         Args:
@@ -102,5 +105,3 @@ class RotaryEmbedding(nn.Module):
         out[..., ::2] = x_rot_even
         out[..., 1::2] = x_rot_odd
         return out
-
-

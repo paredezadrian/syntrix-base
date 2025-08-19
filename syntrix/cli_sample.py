@@ -1,6 +1,5 @@
 import argparse
 import torch
-from pathlib import Path
 from .utils.seed import set_seed
 from .data.text import CharTokenizer, load_text_file
 from .data.bpe import BPETokenizer
@@ -63,7 +62,7 @@ def main(argv=None):
 
     def sample(model, tokenizer, max_new_tokens: int, temperature: float = 1.0):
         # start from a newline
-        idx = torch.tensor([[tokenizer.stoi.get('\n', 0)]], dtype=torch.long)
+        idx = torch.tensor([[tokenizer.stoi.get("\n", 0)]], dtype=torch.long)
         generated = []
         for _ in range(max_new_tokens):
             logits = model(idx)[:, -1, :]
@@ -81,5 +80,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     main()
-
-

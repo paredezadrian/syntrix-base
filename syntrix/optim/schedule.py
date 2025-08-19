@@ -43,5 +43,3 @@ class CosineWithWarmup:
         lr = self.get_lr(self.step_num)
         self.step_num += 1
         return lr
-
-

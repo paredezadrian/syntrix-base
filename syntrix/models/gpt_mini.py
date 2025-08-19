@@ -48,7 +48,10 @@ class GPTMini(nn.Module):
 
         self.tok_emb = nn.Embedding(vocab_size, d_model)
         self.blocks = nn.ModuleList(
-            [TransformerBlock(d_model=d_model, n_head=n_head, mlp_ratio=mlp_ratio) for _ in range(n_layer)]
+            [
+                TransformerBlock(d_model=d_model, n_head=n_head, mlp_ratio=mlp_ratio)
+                for _ in range(n_layer)
+            ]
         )
         self.norm_f = RMSNorm(d_model)
         self.lm_head = nn.Linear(d_model, vocab_size, bias=False)
@@ -56,12 +59,12 @@ class GPTMini(nn.Module):
     def forward(self, idx: torch.Tensor) -> torch.Tensor:
         # idx: (B, T)
         B, T = idx.shape
-        assert T <= self.block_size, f"sequence length {T} exceeds block_size {self.block_size}"
+        assert (
+            T <= self.block_size
+        ), f"sequence length {T} exceeds block_size {self.block_size}"
         x = self.tok_emb(idx)  # (B, T, D)
         for blk in self.blocks:
             x = blk(x)
         x = self.norm_f(x)
         logits = self.lm_head(x)  # (B, T, vocab)
         return logits
-
-

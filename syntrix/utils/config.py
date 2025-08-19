@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 import yaml
 
 
@@ -64,7 +63,16 @@ def load_yaml_config(path: str) -> Config:
             for k, v in data["model"].items():
                 setattr(cfg.model, k, v)
     # Support flattened top-level fields for model too
-    for key in ("vocab_size", "block_size", "n_layer", "n_head", "d_model", "mlp_ratio", "rope", "norm"):
+    for key in (
+        "vocab_size",
+        "block_size",
+        "n_layer",
+        "n_head",
+        "d_model",
+        "mlp_ratio",
+        "rope",
+        "norm",
+    ):
         if key in data:
             setattr(cfg.model, key, data[key])
     if "optim" in data and isinstance(data["optim"], dict):
@@ -77,5 +85,3 @@ def load_yaml_config(path: str) -> Config:
         for k, v in data["train"].items():
             setattr(cfg.train, k, v)
     return cfg
-
-

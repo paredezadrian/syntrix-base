@@ -20,7 +20,9 @@ class SSMMini(nn.Module):
         self.vocab_size = vocab_size
         self.block_size = block_size
         self.tok_emb = nn.Embedding(vocab_size, d_model)
-        self.blocks = nn.ModuleList([DiagonalSSM(d_model=d_model, mlp_ratio=mlp_ratio) for _ in range(n_layer)])
+        self.blocks = nn.ModuleList(
+            [DiagonalSSM(d_model=d_model, mlp_ratio=mlp_ratio) for _ in range(n_layer)]
+        )
         self.norm_f = RMSNorm(d_model)
         self.lm_head = nn.Linear(d_model, vocab_size, bias=False)
 
@@ -32,5 +34,3 @@ class SSMMini(nn.Module):
             x = blk(x)
         x = self.norm_f(x)
         return self.lm_head(x)
-
-

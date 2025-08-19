@@ -7,4 +7,3 @@ def test_tolerance_values():
     rtol64, atol64 = tolerance_for_dtype(torch.float64)
     assert rtol64 < rtol32
     assert atol64 < atol32
-
