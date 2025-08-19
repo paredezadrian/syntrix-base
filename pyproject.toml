@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "syntrix"
-version = "0.2.1"
+version = "0.3.0"
 description = "Syntrix-Base: CPU-first ML framework with tiny models and deterministic training"
 readme = "README.md"
 requires-python = ">=3.9"
-license = "MIT"
+license = { text = "MIT with Commons Clause (non-commercial)" }
 authors = [
   { name = "Adrian Paredez" }
 ]

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/paredezadrian/syntrix-base/actions/workflows/ci.yaml/badge.svg)](https://github.com/paredezadrian/syntrix-base/actions/workflows/ci.yaml)
 [![CodeQL](https://github.com/paredezadrian/syntrix-base/actions/workflows/codeql.yml/badge.svg)](https://github.com/paredezadrian/syntrix-base/actions/workflows/codeql.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT+Commons Clause](https://img.shields.io/badge/License-MIT%20%2B%20Commons%20Clause-orange.svg)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/syntrix.svg)](https://pypi.org/project/syntrix/)
 [![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://pypi.org/project/syntrix/)
 
@@ -165,6 +165,6 @@ We welcome contributions of all kinds: bug fixes, features, docs, and benchmarks
 
 ## License
 
-MIT — see `LICENSE`.
+MIT with Commons Clause (non‑commercial). See `LICENSE` for details.
 
  

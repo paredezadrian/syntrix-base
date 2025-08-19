@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-08-19
+### Licensing
+- Update project license to MIT with Commons Clause (non‑commercial). Updated LICENSE, README badges/section, and package metadata.
+
+### Notes
+- No code changes; packaging metadata and documentation only.
+
 ## [0.2.0] - 2025-08-19
 ### Added
 - CLI UX: improved help, `-v/--verbose` levels; new `syntrix.eval` and `syntrix.config` entry points
