@@ -31,7 +31,7 @@ var/
 # IDEs
 .vscode/
 .idea/
- .cursor/
+.cursor/
 *.swp
 *.swo
 
