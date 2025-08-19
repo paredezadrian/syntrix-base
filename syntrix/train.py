@@ -17,6 +17,7 @@ from .optim.schedule import CosineWithWarmup
 from .optim.ema import EMA
 from .utils.seed import set_seed, set_threads, get_dtype
 from .data.text import CharTokenizer, load_text_file
+import platform
 
 
 @dataclass
@@ -130,6 +131,20 @@ class Trainer:
 
         global_step = 0
         t0 = time.time()
+        # Log environment/system info once at start
+        self._log(
+            {
+                "event": "env",
+                "python": platform.python_version(),
+                "torch": torch.__version__,
+                "threads": {
+                    "torch_num_threads": torch.get_num_threads(),
+                    "omp": os.environ.get("OMP_NUM_THREADS"),
+                    "mkl": os.environ.get("MKL_NUM_THREADS"),
+                },
+                "dtype": str(torch.get_default_dtype()),
+            }
+        )
         for step in range(1, args.train_steps + 1):
             self.optimizer.zero_grad(set_to_none=True)
             loss_accum = 0.0
@@ -164,10 +179,22 @@ class Trainer:
 
             if step % args.save_every == 0 or step == args.train_steps:
                 ckpt_path = Path(args.out_dir) / "ckpt.pt"
-                torch.save({
-                    "model": model.state_dict(),
-                    "optimizer": self.optimizer.state_dict(),
-                    "step": step,
-                }, ckpt_path)
+                torch.save(
+                    {
+                        "model": model.state_dict(),
+                        "optimizer": self.optimizer.state_dict(),
+                        "step": step,
+                        "meta": {
+                            "vocab_size": self.model.vocab_size,
+                            "d_model": self.args.d_model,
+                            "n_layer": self.args.n_layer,
+                            "n_head": self.args.n_head,
+                            "block_size": self.args.block_size,
+                            "mlp_ratio": self.args.mlp_ratio,
+                            "chars": self.tokenizer.chars,
+                        },
+                    },
+                    ckpt_path,
+                )
 
 

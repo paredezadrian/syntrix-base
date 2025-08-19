@@ -5,8 +5,13 @@ import torch
 
 
 class CharTokenizer:
-    def __init__(self, text: str):
-        self.chars = sorted(list(set(text)))
+    def __init__(self, text: Optional[str] = None, chars: Optional[List[str]] = None):
+        if chars is not None:
+            # Use provided order exactly
+            self.chars = list(chars)
+        else:
+            assert text is not None, "Either text or chars must be provided"
+            self.chars = sorted(list(set(text)))
         self.stoi = {c: i for i, c in enumerate(self.chars)}
         self.itos = {i: c for c, i in self.stoi.items()}
 
