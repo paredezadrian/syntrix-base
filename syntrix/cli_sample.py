@@ -19,15 +19,23 @@ def main(argv=None):
     ckpt = torch.load(args.ckpt, map_location="cpu")
     meta = ckpt.get("meta", {})
     chars = meta.get("chars")
-    if chars is None:
-        # Fallback: build from data file
+    vocab_size = meta.get("vocab_size")
+    token_chars = None
+    if chars is not None:
+        token_chars = list(chars)
+    elif args.data_file:
         text = load_text_file(args.data_file)
-        tok = CharTokenizer(text)
+        token_chars = sorted(list(set(text)))
     else:
-        tok = CharTokenizer(chars=chars)
+        raise SystemExit("Need --data.file if checkpoint meta lacks chars")
+
+    if vocab_size is not None and len(token_chars) < vocab_size:
+        pad_needed = vocab_size - len(token_chars)
+        token_chars = token_chars + ["�"] * pad_needed
+    tok = CharTokenizer(chars=token_chars)
 
     model = GPTMini(
-        vocab_size=len(tok.chars),
+        vocab_size=(vocab_size if vocab_size is not None else len(tok.chars)),
         d_model=meta.get("d_model", 256),
         n_layer=meta.get("n_layer", 4),
         n_head=meta.get("n_head", 4),
