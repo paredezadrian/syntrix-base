@@ -23,7 +23,7 @@ class CharTokenizer:
         return [self.stoi[c] for c in s]
 
     def decode(self, ids: List[int]) -> str:
-        return "".join(self.itos[i] for i in ids)
+        return "".join(self.itos.get(i, "�") for i in ids)
 
 
 def load_text_file(path: str) -> str:
