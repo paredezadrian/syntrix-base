@@ -56,6 +56,11 @@ class TrainArgs:
     tokenizer: str = "char"  # char|bpe
     bpe_vocab_size: int = 256
     use_mmap: bool = False
+    # Compilation
+    compile: bool = False
+    compile_validate: bool = False
+    compile_auto: bool = False
+    compile_min_improvement: float = 1.05
 
 
 def tokens_from_text(text: str, tokenizer: CharTokenizer) -> torch.Tensor:
@@ -96,6 +101,7 @@ def evaluate_bpc(model: torch.nn.Module, tokens: torch.Tensor, block_size: int, 
 class Trainer:
     def __init__(self, args: TrainArgs):
         self.args = args
+        self._used_compiled = False
 
         set_seed(args.seed)
         set_threads(args.threads)
@@ -138,8 +144,8 @@ class Trainer:
         else:
             raise ValueError(f"Unknown model {args.model}")
 
-        # Optional compile (no-op if unavailable)
-        self.model = try_compile(self.model, enabled=os.environ.get("SYNTRIX_COMPILE", "0") == "1")
+        # Optional compile and validation
+        self.model = self._maybe_compile_model(self.model)
 
         self.optimizer = AdamW(self.model.parameters(), lr=args.lr, betas=args.betas, weight_decay=args.weight_decay)
         self.scheduler = CosineWithWarmup(
@@ -173,6 +179,7 @@ class Trainer:
                     "mkl": os.environ.get("MKL_NUM_THREADS"),
                 },
                 "dtype": str(torch.get_default_dtype()),
+                "compiled": getattr(self, "_used_compiled", False),
             }
         )
         for step in range(1, args.train_steps + 1):
@@ -231,4 +238,56 @@ class Trainer:
                     ckpt_path,
                 )
 
+
+    def _measure_forward_throughput(self, model: torch.nn.Module, steps: int = 20) -> float:
+        args = self.args
+        model_was_training = model.training
+        model.eval()
+        # warmup
+        with torch.no_grad():
+            xb, yb = sample_batch(self.train_tokens, max(1, args.microbatch), args.block_size)
+            for _ in range(3):
+                _ = model(xb)
+            t0 = time.time()
+            tokens = 0
+            for _ in range(steps):
+                _ = model(xb)
+                tokens += xb.numel()
+        dt = max(1e-6, time.time() - t0)
+        if model_was_training:
+            model.train()
+        return tokens / dt
+
+
+    def _maybe_compile_model(self, model: torch.nn.Module) -> torch.nn.Module:
+        args = self.args
+        # Determine request: CLI has precedence, fall back to env for backward-compat
+        requested = bool(args.compile or os.environ.get("SYNTRIX_COMPILE", "0") == "1")
+        validate = bool(args.compile_validate or args.compile_auto)
+        if not requested:
+            self._used_compiled = False
+            return model
+
+        if not validate:
+            compiled = try_compile(model, enabled=True)
+            self._used_compiled = compiled is not model
+            return compiled
+
+        # Validate throughput and optionally auto-select
+        base_tps = self._measure_forward_throughput(model, steps=10)
+        compiled = try_compile(model, enabled=True)
+        comp_tps = self._measure_forward_throughput(compiled, steps=10)
+
+        improved = comp_tps >= (base_tps * float(max(1.0, args.compile_min_improvement)))
+        if args.compile_auto:
+            if improved:
+                self._used_compiled = True
+                return compiled
+            else:
+                self._used_compiled = False
+                return model
+        else:
+            # Only validate; keep compiled model but record whether it improved
+            self._used_compiled = compiled is not model
+            return compiled
 
